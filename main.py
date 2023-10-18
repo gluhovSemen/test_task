@@ -28,7 +28,7 @@ async def sign_in_user(
     sign_in_data: schemas.UserSignIn, session: AsyncSession = Depends(get_session)
 ):
     user_db = await get_user_by_email(session, sign_in_data.email)
-    if not user_db or sign_in_data.password != user_db.password:
+    if not user_db or not user_db.verify_password(sign_in_data.password):
         raise HTTPException(status_code=400, detail="Invalid email or password")
 
     auth_token = await create_user_token(session, user_db)

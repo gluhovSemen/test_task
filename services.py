@@ -19,8 +19,8 @@ async def create_user(session: AsyncSession, user: UserCreate) -> User:
         surname=user.surname,
         email=user.email,
         eth_address=user.eth_address,
-        password=user.password,
     )
+    db_user.set_password(user.password)
     session.add(db_user)
     await session.commit()
     await session.refresh(db_user)

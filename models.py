@@ -1,3 +1,4 @@
+from passlib.handlers.bcrypt import bcrypt
 from sqlalchemy import CheckConstraint, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
@@ -21,6 +22,11 @@ class User(Base):
         CheckConstraint("CHAR_LENGTH(password) >= 8", name="password_length_check"),
     )
 
+    def set_password(self, password: str):
+        self.password = bcrypt.hash(password)
+
+    def verify_password(self, password: str):
+        return bcrypt.verify(password, self.password)
 
 class AuthToken(Base):
     __tablename__ = "auth_token"

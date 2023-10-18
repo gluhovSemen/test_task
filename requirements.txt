@@ -7,3 +7,4 @@ pydantic~=2.4.2
 psycopg2-binary==2.9.9
 uvicorn==0.23.2
 asyncpg==0.28.0
+passlib=1.7.4
