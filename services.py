@@ -7,13 +7,13 @@ from schemas import UserCreate
 from utils import create_auth_token
 
 
-async def get_user_by_email(db: AsyncSession, email: str) -> User:
+async def get_user_by_email(session: AsyncSession, email: str) -> User:
     statement = select(User).where(User.email == email)
-    result = await db.execute(statement)
+    result = await session.execute(statement)
     return result.scalars().first()
 
 
-async def create_user(db: AsyncSession, user: UserCreate) -> User:
+async def create_user(session: AsyncSession, user: UserCreate) -> User:
     db_user = User(
         name=user.name,
         surname=user.surname,
@@ -21,26 +21,26 @@ async def create_user(db: AsyncSession, user: UserCreate) -> User:
         eth_address=user.eth_address,
         password=user.password,
     )
-    db.add(db_user)
-    await db.commit()
-    await db.refresh(db_user)
+    session.add(db_user)
+    await session.commit()
+    await session.refresh(db_user)
     return db_user
 
 
-async def create_user_token(db: AsyncSession, user: User) -> AuthToken.token:
+async def create_user_token(session: AsyncSession, user: User) -> AuthToken.token:
     db_token = AuthToken(user_id=user.id, token=create_auth_token())
-    db.add(db_token)
-    await db.commit()
+    session.add(db_token)
+    await session.commit()
     return db_token.token
 
 
-async def get_user_by_token(db: AsyncSession, token: str) -> User:
+async def get_user_by_token(session: AsyncSession, token: str) -> User:
     statement = select(AuthToken).where(AuthToken.token == token)
-    result = await db.execute(statement)
+    result = await session.execute(statement)
     try:
         user_id = result.scalars().first().user_id
         statement = select(User).where(User.id == user_id)
-        result = await db.execute(statement)
+        result = await session.execute(statement)
         return result.scalars().first()
     except AttributeError:
         raise HTTPException(status_code=400, detail="Invalid token")
