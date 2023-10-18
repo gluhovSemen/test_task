@@ -1,7 +1,8 @@
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from models import User, AuthToken
+
+from models import AuthToken, User
 from schemas import UserCreate
 from utils import create_auth_token
 
@@ -13,8 +14,13 @@ async def get_user_by_email(db: AsyncSession, email: str) -> User:
 
 
 async def create_user(db: AsyncSession, user: UserCreate) -> User:
-    db_user = User(name=user.name, surname=user.surname, email=user.email, eth_address=user.eth_address,
-                   password=user.password)
+    db_user = User(
+        name=user.name,
+        surname=user.surname,
+        email=user.email,
+        eth_address=user.eth_address,
+        password=user.password,
+    )
     db.add(db_user)
     await db.commit()
     await db.refresh(db_user)
@@ -22,9 +28,7 @@ async def create_user(db: AsyncSession, user: UserCreate) -> User:
 
 
 async def create_user_token(db: AsyncSession, user: User) -> AuthToken.token:
-    db_token = AuthToken(
-        user_id=user.id, token=create_auth_token()
-    )
+    db_token = AuthToken(user_id=user.id, token=create_auth_token())
     db.add(db_token)
     await db.commit()
     return db_token.token

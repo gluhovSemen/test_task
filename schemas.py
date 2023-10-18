@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel, Field, validator
 
 
 class UserCreate(BaseModel):
@@ -8,10 +8,15 @@ class UserCreate(BaseModel):
     eth_address: str
     password: str = Field(min_length=8)
 
-    @validator('password')
+    @validator("password")
     def validate_password_format(cls, value):
-        if not (any(char.isdigit() for char in value) and any(char.isupper() for char in value)):
-            raise ValueError("Password must contain at least one digit and one uppercase letter")
+        if not (
+            any(char.isdigit() for char in value)
+            and any(char.isupper() for char in value)
+        ):
+            raise ValueError(
+                "Password must contain at least one digit and one uppercase letter"
+            )
         return value
 
 

@@ -1,11 +1,12 @@
-from config import Settings
-from schemas import UserCreate
-import schemas
-from db import get_session
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from services import get_user_by_email, create_user, create_user_token, get_user_by_token
+import schemas
+from config import Settings
+from db import get_session
+from schemas import UserCreate
+from services import (create_user, create_user_token, get_user_by_email,
+                      get_user_by_token)
 from utils import get_signature
 
 app = FastAPI()
@@ -23,7 +24,9 @@ async def register_user(user: UserCreate, session: AsyncSession = Depends(get_se
 
 
 @app.post("/sign_in", response_model=dict)
-async def sign_in_user(sign_in_data: schemas.UserSignIn, session: AsyncSession = Depends(get_session)):
+async def sign_in_user(
+    sign_in_data: schemas.UserSignIn, session: AsyncSession = Depends(get_session)
+):
     user_db = await get_user_by_email(session, sign_in_data.email)
     if not user_db or sign_in_data.password != user_db.password:
         raise HTTPException(status_code=400, detail="Invalid email or password")
@@ -35,4 +38,9 @@ async def sign_in_user(sign_in_data: schemas.UserSignIn, session: AsyncSession =
 @app.get("/user", response_model=dict)
 async def get_user(auth_token: str, session: AsyncSession = Depends(get_session)):
     user = await get_user_by_token(session, auth_token)
-    return {"name": user.name, "surname": user.surname, "email": user.email, "eth_address": user.eth_address}
+    return {
+        "name": user.name,
+        "surname": user.surname,
+        "email": user.email,
+        "eth_address": user.eth_address,
+    }

@@ -12,6 +12,8 @@ def create_auth_token():
 
 def get_signature(user_id, key):
     hashed_user_id = Web3.solidity_keccak(["uint256"], [user_id]).hex()
-    signable_message = eth_account.messages.defunct_hash_message(hexstr=hashed_user_id).hex()
+    signable_message = eth_account.messages.defunct_hash_message(
+        hexstr=hashed_user_id
+    ).hex()
     signed_message = w3.eth.account.signHash(signable_message, private_key=key)
     return signed_message.signature.hex()
